@@ -1,0 +1,133 @@
+message structure
+	id assigned at creation
+
+	encrypted with public key:
+		user hash
+
+		date
+
+		type
+		
+		content
+
+	HMAC
+
+
+file system
+	all files are encrypted with user-AES
+
+	main
+		*either placed in root, or only pointer.cfg in root, which specifies the path to main folder*
+
+		user
+			settings.cfg
+				all of the settings aviable
+			
+			user.cfg
+				id and username
+
+			avatar.png
+
+			backup encryption.cst ** ? **
+				backup-AES
+
+		contacts
+			{dirs named after IDs}
+				contact
+					core.cst
+						contact's user-hash (not additionally encrypted with hash-AES)
+
+						public-private key pair
+
+						hash-AES
+
+					alias.json
+						the name that shows next to a contact
+
+					picture me.png
+
+					picture contact.png
+
+
+				conversation.json
+					messages...
+
+				media
+					all of the files sent, which are referenced in the conversation.json
+
+
+encryption
+	user-set, not saved anywhere
+		user-AES that encrypts all of the files
+
+	auto-set, saved individually for each conversation
+		hash-AES
+
+		public(form contact)-private(self) key pair that encrypts/decrypts main body of messages 
+
+
+possible threats:
+	message intercepted
+		user hash leaked
+			shouldn't be that big of a problem - without knowing the public key and hash encryption it should be impossible to impersonate
+		
+		HMAC leaked:
+			no issue at all
+
+		encrypted message body leaked
+			should be impossible to crack
+
+	files stolen (user's AES key stays safe)
+		all of the files are heavily encrypted, so it should be impossible to read them
+
+	files stolen (along with user's AES key)
+		all data is compromised, 
+			there is nothing we can do...
+
+	AES key leaked (files stay safe)
+		theoretically everything is good, but it should be changed (that must be made into easy feature)
+
+	corrupted files
+		(in folder of a contact) 
+			conversation.json, files in \media, picture me.png, picture contact.png
+				should be possible to restore them by requesting transfer from the contact
+
+			alias.json
+				just set a new one
+
+			encryption.cst
+				procedure to try and restore matching encryption initiated (just like when the contact is first established)
+
+		(in folder of a user)
+			settings.cfg
+				return to default settings
+
+			user.cfg
+				AAAAAAAAAAAAAAAAAAAAAA
+				idea is to make it so every contact stores those critical data encrypted, but it could be INCREADIBLY dangerous
+
+			backup encryption.cst
+				AAAAAAAAAAAAAAAAAAAAAA
+
+
+ideas for settings
+	max daily storage allocated
+		to prevent contacts from making jokes like sending useless files and wasting user's disk space
+
+	automatically open the files
+		*radio* *dangerous* do not show dialog-Toplevel when clicking on a file in conversation, instead open it automatically
+
+	automatically create copy
+		*radio* do not show dialog-Toplevel when clicking on a file in conversation, instead create its decrypted copy in root
+
+	keybinds
+		ability to make custom keybinds
+
+		default
+			send message - ctrl-enter
+			cycle widgets positive - ctrl-tab
+			cycle widgets negative - ctrl-shift-tab
+
+	auto-delete old files
+		default - 0 (never)
+
